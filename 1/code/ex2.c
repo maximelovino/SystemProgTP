@@ -6,6 +6,18 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <pthread.h>
+
+void* timeoutWriter(void* args){
+	int* socket = (int*) args;
+	char string[] = "Luke Skywalker: timeout\n";
+	int len = strlen(string);
+
+	while (1){
+		sleep(1);
+		write(socket[1],string,len);
+	}
+}
 
 int main(){
 	int s[2];
@@ -24,13 +36,12 @@ int main(){
 	if (pid == 0) {
 		printf("Hi I'm Luke\n");
 		//We're in the child
+		pthread_t thread;
+		pthread_create(&thread,NULL,timeoutWriter,s);
 		while (1) {
 			memset(buffer,0,1024);
 			read(s[1], buffer, 1024);
 			printf("Luke Skywalker: %s\n", buffer);
-			sleep(1);
-			char timeout[] = "timeout";
-			write(s[1],timeout,strlen(timeout));
 		}
 	} else {
 		printf("Luke, I am your father\n");
