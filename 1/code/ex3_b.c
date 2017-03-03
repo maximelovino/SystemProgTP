@@ -24,7 +24,7 @@ int main() {
 	strcpy(local.sun_path, SOCKETPATH);
 
 	int len = strlen(local.sun_path) + sizeof(local.sun_family);
-	//len+1 otherwise last char truncated
+	//len+1 otherwise last char truncated, this is due to MacOS
 	if (bind(s, (struct sockaddr*) &local, len + 1) < 0)
 		perror("socket binding error");
 
