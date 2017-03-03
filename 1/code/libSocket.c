@@ -32,7 +32,7 @@ int socket_unix_client(int domain, int type, char* path) {
 		exit(EXIT_FAILURE);
 	}
 	if (0 >
-		connect(fdsock, (const struct sockaddr*) &remote, strlen(remote.sun_path) + sizeof(remote.sun_family) + 1)) {
+		connect(fdsock, (const struct sockaddr*) &remote, strlen(remote.sun_path) + sizeof(remote.sun_family))) {
 		perror("connect");
 		exit(EXIT_FAILURE);
 	}
@@ -45,7 +45,7 @@ int socket_unix_server(int domain, int type, char* path, unsigned int maxClients
 	struct sockaddr_un remote;
 	remote.sun_family = domain;
 	strcpy(remote.sun_path, path);
-	unsigned int remote_len = strlen(remote.sun_path) + sizeof(remote.sun_family) + 1;
+	unsigned int remote_len = strlen(remote.sun_path) + sizeof(remote.sun_family);
 
 	if (0 > (fdsock = socket(domain, type, 0))) {
 		perror("socket");
