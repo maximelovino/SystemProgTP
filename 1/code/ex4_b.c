@@ -12,11 +12,13 @@ int main() {
 	if (pid == 0) {
 		//We're in the son
 		int socket = socket_unix_server(AF_UNIX, SOCK_STREAM, "/tmp/sock_client", 10);
+		socket = waitForConnection(socket);
 		printf("Server client socket done in son");
 		io_loop(0, socket);
 	} else {
 		//We're in the parent
 		int socket = socket_unix_server(AF_UNIX, SOCK_STREAM, "/tmp/sock_server", 10);
+		socket = waitForConnection(socket);
 		printf("Server server socket done in parent");
 		io_loop(socket, 1);
 	}

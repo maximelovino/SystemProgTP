@@ -27,6 +27,14 @@
 void io_loop(int input, int output);
 
 /**
+ * Loopback io, from input to middle, then response from middle to output
+ * @param input The input
+ * @param middle The middleman
+ * @param output The output
+ */
+void io_loopback(int input, int middle, int output);
+
+/**
  * Function that return a socket descriptor for a client
  * @param domain The domain of the socket, as defined in sys/socket.h
  * @param type	The type of socket, as defined in sys/socket.h
@@ -56,6 +64,13 @@ int socket_unix_server(int domain, int type, char* path, unsigned int maxClients
  * @return The file descriptor of the socket
  */
 int socket_ip_server(int domain, int type, char* path, unsigned int maxClients, int port);
+
+/**
+ * Connection waiting block, will wait until a client connects to the socket
+ * @param fdsock The socket on the server
+ * @return The socket for the newly connected client
+ */
+int waitForConnection(int fdsock);
 
 /**
  * Client connection to an ip socket

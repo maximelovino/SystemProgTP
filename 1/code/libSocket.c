@@ -20,6 +20,31 @@ void io_loop(int input, int output) {
 	}
 }
 
+void io_loopback(int input, int middle, int output) {
+	char buffer[BUFF_SIZE];
+	ssize_t nb_reads;
+
+	while (1) {
+		if (0 > (nb_reads = read(input, buffer, BUFF_SIZE))) {
+			perror("read");
+			exit(EXIT_FAILURE);
+		}
+		if (0 > write(middle, buffer, nb_reads)) {
+			perror("write");
+			exit(EXIT_FAILURE);
+		}
+		if (0 > (nb_reads = read(middle, buffer, BUFF_SIZE))) {
+			perror("read");
+			exit(EXIT_FAILURE);
+		}
+		if (0 > write(output, buffer, nb_reads)) {
+			perror("write");
+			exit(EXIT_FAILURE);
+		}
+
+	}
+}
+
 
 int socket_unix_client(int domain, int type, char* path) {
 	int fdsock;
@@ -71,7 +96,7 @@ int socket_unix_server(int domain, int type, char* path, unsigned int maxClients
 int socket_ip_server(int domain, int type, char* path, unsigned int maxClients, int port) {
 	unlink(path);
 	int fdsock;
-	struct sockaddr_in addrInternet, addrClient;
+	struct sockaddr_in addrInternet;
 	addrInternet.sin_family = domain;
 	addrInternet.sin_addr.s_addr = htonl(INADDR_ANY);
 	addrInternet.sin_port = (in_port_t) htons(port);
@@ -91,6 +116,11 @@ int socket_ip_server(int domain, int type, char* path, unsigned int maxClients, 
 		_exit(EXIT_FAILURE);
 	}
 
+	return fdsock;
+}
+
+int waitForConnection(int fdsock) {
+	struct sockaddr_in addrClient;
 	socklen_t clientLength;
 	int newSocket = accept(fdsock, (struct sockaddr*) &addrClient, &clientLength);
 	if (newSocket < 0) {
@@ -99,6 +129,7 @@ int socket_ip_server(int domain, int type, char* path, unsigned int maxClients, 
 	}
 	return newSocket;
 }
+
 
 int socket_ip_client(int domain, int type, char* address, int port) {
 	int fdsock;
