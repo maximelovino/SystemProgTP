@@ -3,7 +3,7 @@
 //
 
 #include "dataStructEx7.h"
-#include "libSocket.h"
+#include "../libSocket.h"
 
 
 int main() {

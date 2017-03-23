@@ -3,7 +3,7 @@
 //
 
 #include "dataStructEx7.h"
-#include "libSocket.h"
+#include "../libSocket.h"
 
 int main() {
 	int fd = socket_ip_client(AF_INET, SOCK_STREAM, "127.0.0.1", 4242);

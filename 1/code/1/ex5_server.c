@@ -2,7 +2,7 @@
 // Created by Lovino Maxime on 03.03.17.
 //
 
-#include "libSocket.h"
+#include "../libSocket.h"
 
 int main() {
 	printf("Hello, I'll be the server\n");

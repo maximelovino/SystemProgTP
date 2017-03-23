@@ -2,7 +2,7 @@
 // Created by Lovino Maxime on 04.03.17.
 //
 
-#include "libSocket.h"
+#include "../libSocket.h"
 
 int main() {
 	int fd = socket_ip_client(AF_INET, SOCK_STREAM, "127.0.0.1", 4242);
