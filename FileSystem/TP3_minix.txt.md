@@ -51,13 +51,13 @@ disque du système de fichier Minix.
 L'image du volume contenant le système de fichier minix utilisé
 pour répondre aux questions se trouve sur : 
 
-https://infolibre.ch/hepia/syst-exploitation-2015-2016/minixfs_lab1.img.gz
+https://hepia.infolibre.ch/syst-exploitation-2016-2017/minixfs_lab1.img.gz
 
 Elle est compressée au format gzip, il faut la décompresser si vous voulez
 en lire le contenu binaire. Afin de vous faciliter la résolution des questions, 
 un dump hexadécimal ASCII d'une partie des blocs de ce volume est disponible sur :
 
-https://infolibre.ch/hepia/syst-exploitation-2015-2016/TP3_minixfs_lab1_dump_blocs.txt
+https://hepia.infolibre.ch/syst-exploitation-2016-2017/TP3_minixfs_lab1_dump_blocs.txt
 
 Ce dump, sur troix colonnes, indique avant chaque bloc du volume son numéro par l'entête suivante
 
@@ -137,7 +137,7 @@ IV. La question challenge
 -------------------------
 
 Concevoir un programme dans le langage de votre choix pour extraire entièrement 
-de l'image https://infolibre.ch/hepia/syst-exploitation-2015-2016/minixfs_lab1.img.gz
+de l'image https://hepia.infolibre.ch/syst-exploitation-2016-2017/minixfs_lab1.img.gz
 tous les blocs du fichier /usr/src/archives/linux-0.95.tgz. Concaténer le contenu des 
 blocs extraits comme il faut et vérifier que votre extraction a bien fonctionné 
 en essayant de décompresser l'archive.
