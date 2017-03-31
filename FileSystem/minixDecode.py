@@ -2,6 +2,7 @@
 
 import struct
 from SuperBlock import *
+from Inode import *
 
 filename = 'minixfs_lab1.img'
 blkSize = 1024
@@ -47,5 +48,14 @@ print "6. Combien y-a-t-il d'inodes par bloc ?"
 print blkSize / iNodeSize
 print "==============="
 
+
+def getInode(id):
+    file.seek(firstInodeTableBlk * blkSize)
+    data = struct.unpack("<HHIIBBHHHHHHHHH", file.read(iNodeSize))
+    return Inode(data)
+
+
+node = getInode(1)
+print node.i_zone
 
 file.close()
