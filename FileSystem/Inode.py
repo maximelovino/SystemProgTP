@@ -9,3 +9,8 @@ class Inode:
         self.i_zone = data[6:12]
         self.i_indir_zone = data[13]
         self.i_dbl_indr_zone = data[14]
+
+    def __str__(self):
+        return str(self.i_mode) + " / " + str(self.i_uid) + " / " + str(self.i_size) + " / " + str(
+            self.i_time) + " / " + str(self.i_gid) + " / " + str(self.i_nlinks) + " / " + str(
+            self.i_zone) + " / " + str(self.i_indir_zone) + " / " + str(self.i_dbl_indr_zone)

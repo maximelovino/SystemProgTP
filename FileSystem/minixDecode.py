@@ -56,6 +56,11 @@ def getInode(id):
 
 
 node = getInode(1)
-print node.i_zone
+print node
+
+# this is false
+file.seek(firstBitmapBlk * blkSize)
+temp = struct.unpack("<HBBBBBBBBBBBBBB", file.read(16))
+print temp
 
 file.close()
