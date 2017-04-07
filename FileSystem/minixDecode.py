@@ -137,10 +137,15 @@ else:
 print "==============="
 
 
-def readAllDataBlocs(file, blocs, size):
+def readAllDataBlocs(file, blocs, size, array=1):
     content = ''
-    for bloc in blocs:
-        file.seek(bloc * blkSize)
+    if array == 1:
+        for bloc in blocs:
+            if bloc != 0:
+                file.seek(bloc * blkSize)
+                content += file.read(size)
+    else:
+        file.seek(blocs * blkSize)
         content += file.read(size)
     return content
 
@@ -149,34 +154,30 @@ def getNDirBlocs(file, ndir):
     file.seek(blkSize * ndir)
     ndirBlocs = []
     for i in xrange(blkSize / 2):
-        ndirBlocs[i] = struct.unpack("<H", file.read(2))[0]
-
+        ndirBlocs.append(struct.unpack("<H", file.read(2))[0])
     return ndirBlocs
 
 
 def readBlocsFromInode(node):
+    blocs = []
     content = ''
-    content += readAllDataBlocs(imageFile, node.i_zone)
+    blocs += node.i_zone
+    blocs += getNDirBlocs(imageFile, node.i_indir_zone)
 
-    ndirBlocs = getNDirBlocs(imageFile, node.i_indir_zone)
+    doubleN = getNDirBlocs(imageFile, node.i_dbl_indr_zone)
+    doubleBlocs = []
+    for i in doubleN:
+        doubleBlocs += getNDirBlocs(imageFile, i)
 
-    content += readAllDataBlocs(imageFile, ndirBlocs)
+    blocs += doubleBlocs
 
-    imageFile.seek(blkSize * node.i_dbl_indr_zone)
-    doubleNdirBlocs = []
+    for i in xrange(node.i_size / blkSize):
+        content += readAllDataBlocs(imageFile, blocs[i], blkSize, 0)
 
-    for i in xrange(blkSize / 2):
-        doubleNdirBlocs[i] = struct.unpack("<H", imageFile.read(2))[0]
+    if node.i_size % blkSize != 0:
+        temp = readAllDataBlocs(imageFile, blocs[node.i_size / blkSize], node.i_size % blkSize, 0)
+        content += temp
 
-    remaining = node.i_size % blkSize
-    for i in doubleNdirBlocs[:-1]:
-        content += readAllDataBlocs(imageFile, getNDirBlocs(i), blkSize)
-
-    lastNDir = getNDirBlocs(imageFile, doubleNdirBlocs[-1])
-    for i in lastNDir[:-1]:
-        content += readAllDataBlocs(imageFile, i, blkSize)
-
-    content += readAllDataBlocs(imageFile, lastNDir[-1], remaining)
     return content
 
 
