@@ -7,17 +7,16 @@ from Inode import *
 filename = 'minixfs_lab1.img'
 blkSize = 1024
 superBlockId = 1
-file = open(filename)
+imageFile = open(filename)
 
 iNodeSize = 32
 
 print "I. Questions sur la structure du super-bloc, et des structures d'allocations de blocs/inodes"
 
 # skip block 0
-file.seek(blkSize * superBlockId)
+imageFile.seek(blkSize * superBlockId)
 # Read superblock
-# TODO check to do in a superblock object
-data = struct.unpack("<HHHHHHIHH", file.read(20))
+data = struct.unpack("<HHHHHHIHH", imageFile.read(20))
 
 superBlock = SuperBlock(data)
 
@@ -56,19 +55,18 @@ print "==============="
 
 def findInNode(nodeId, search):
     rootNode = getInode(nodeId)
-    file.seek(blkSize * rootNode.i_zone[0])
+    imageFile.seek(blkSize * rootNode.i_zone[0])
     while True:
-        id = struct.unpack("<H", file.read(2))
-        name = struct.unpack("<BBBBBBBBBBBBBB", file.read(14))
-        letters = [chr(i) for i in name if i != 0]
-        letters = ''.join(letters)
+        id = struct.unpack("<H", imageFile.read(2))
+        name = struct.unpack("<BBBBBBBBBBBBBB", imageFile.read(14))
+        letters = ''.join([chr(i) for i in name if i != 0])
         if letters == search:
             return (id[0], letters)
 
 
 def getInode(id):
-    file.seek(firstInodeTableBlk * blkSize + (id - 1) * iNodeSize)
-    data = struct.unpack("<HHIIBBHHHHHHHHH", file.read(iNodeSize))
+    imageFile.seek(firstInodeTableBlk * blkSize + (id - 1) * iNodeSize)
+    data = struct.unpack("<HHIIBBHHHHHHHHH", imageFile.read(iNodeSize))
     return Inode(data)
 
 
@@ -130,9 +128,6 @@ tempNode = getInode(tempID)
 print "La taille est : " + str(tempNode.i_size)
 print "==============="
 print '10. Quelle est le nombre total de blocs occupés par ce fichier ? Combien d\'octets contient le dernier bloc du fichier ?'
-print tempNode.i_zone
-print tempNode.i_indir_zone
-print tempNode.i_dbl_indr_zone
 if tempNode.i_size % blkSize != 0:
     print "Le nombre de blocs sera de : " + str(tempNode.i_size / blkSize + 1)
     print "Dans le dernier bloc il y aura : " + str(tempNode.i_size % blkSize) + " octets"
@@ -140,4 +135,55 @@ else:
     print "Le nombre de blocs sera de : " + str(tempNode.i_size / blkSize)
     print "Dans le dernier bloc il y aura : " + str(blkSize) + " octets"
 print "==============="
-file.close()
+
+
+def readAllDataBlocs(file, blocs, size):
+    content = ''
+    for bloc in blocs:
+        file.seek(bloc * blkSize)
+        content += file.read(size)
+    return content
+
+
+def getNDirBlocs(file, ndir):
+    file.seek(blkSize * ndir)
+    ndirBlocs = []
+    for i in xrange(blkSize / 2):
+        ndirBlocs[i] = struct.unpack("<H", file.read(2))[0]
+
+    return ndirBlocs
+
+
+def readBlocsFromInode(node):
+    content = ''
+    content += readAllDataBlocs(imageFile, node.i_zone)
+
+    ndirBlocs = getNDirBlocs(imageFile, node.i_indir_zone)
+
+    content += readAllDataBlocs(imageFile, ndirBlocs)
+
+    imageFile.seek(blkSize * node.i_dbl_indr_zone)
+    doubleNdirBlocs = []
+
+    for i in xrange(blkSize / 2):
+        doubleNdirBlocs[i] = struct.unpack("<H", imageFile.read(2))[0]
+
+    remaining = node.i_size % blkSize
+    for i in doubleNdirBlocs[:-1]:
+        content += readAllDataBlocs(imageFile, getNDirBlocs(i), blkSize)
+
+    lastNDir = getNDirBlocs(imageFile, doubleNdirBlocs[-1])
+    for i in lastNDir[:-1]:
+        content += readAllDataBlocs(imageFile, i, blkSize)
+
+    content += readAllDataBlocs(imageFile, lastNDir[-1], remaining)
+    return content
+
+
+toWrite = open("myArchive.tar.gz", 'w+')
+
+toWrite.write(readBlocsFromInode(tempNode))
+
+toWrite.close()
+
+imageFile.close()
